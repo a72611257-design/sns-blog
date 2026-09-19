@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SNS 자동화 글 - 2026-09-19</title>
+<style>
+body{
+    max-width:800px;
+    margin:40px auto;
+    padding:20px;
+    font-family:Arial,sans-serif;
+    line-height:1.8
+}
+h1{
+    border-bottom:2px solid #333;
+    padding-bottom:10px
+}
+.date{
+    color:#777
+}
+</style>
+</head>
+<body>
+<h1>SNS 자동화 글 - 2026-09-19</h1>
+<div class="date">작성일: 2026-09-19</div>
+<div>from datetime import datetime<br>from html import escape<br>import os<br><br>text = open(&quot;post.txt&quot;, &quot;r&quot;, encoding=&quot;utf-8&quot;).read()<br>lines = text.splitlines()<br><br>title = next((x.replace(&quot;제목:&quot;, &quot;&quot;, 1).strip() for x in lines if x.startswith(&quot;제목:&quot;)), &quot;&quot;)<br>content = &quot;\n&quot;.join(x for x in lines if not x.startswith(&quot;제목:&quot;) and not x.startswith(&quot;본문:&quot;)).strip()<br><br>today = datetime.now().strftime(&quot;%Y-%m-%d&quot;)<br>title = title or (&quot;SNS 자동화 글 - &quot; + today)<br><br>os.makedirs(&quot;posts&quot;, exist_ok=True)<br><br>safe = &quot;&quot;.join(x for x in title if x.isalnum() or x in &quot; -_&quot;).strip() or &quot;blog-post&quot;<br>name = today + &quot;-&quot; + safe<br>filename = os.path.join(&quot;posts&quot;, name + &quot;.html&quot;)<br><br>n = 2<br>while os.path.exists(filename):<br>    filename = os.path.join(&quot;posts&quot;, name + &quot;-&quot; + str(n) + &quot;.html&quot;)<br>    n += 1<br><br>page = &quot;&quot;&quot;&lt;!DOCTYPE html&gt;<br>&lt;html lang=&quot;ko&quot;&gt;<br>&lt;head&gt;<br>&lt;meta charset=&quot;UTF-8&quot;&gt;<br>&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;<br>&lt;title&gt;&quot;&quot;&quot; + escape(title) + &quot;&quot;&quot;&lt;/title&gt;<br>&lt;style&gt;<br>body{max-width:800px;margin:40px auto;padding:20px;font-family:Arial,sans-serif;line-height:1.8}<br>h1{border-bottom:2px solid #333;padding-bottom:10px}<br>.date{color:#777}<br>&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;h1&gt;&quot;&quot;&quot; + escape(title) + &quot;&quot;&quot;&lt;/h1&gt;<br>&lt;div class=&quot;date&quot;&gt;작성일: &quot;&quot;&quot; + today + &quot;&quot;&quot;&lt;/div&gt;<br>&lt;div&gt;&quot;&quot;&quot; + escape(content).replace(&quot;\n&quot;, &quot;&lt;br&gt;&quot;) + &quot;&quot;&quot;&lt;/div&gt;<br>&lt;hr&gt;<br>&lt;p&gt;이 글은 Python을 이용한 SNS 자동화 테스트입니다.&lt;/p&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;&quot;&quot;&quot;<br><br>open(filename, &quot;w&quot;, encoding=&quot;utf-8&quot;).write(page)<br><br>files = [x for x in os.listdir(&quot;posts&quot;) if x.endswith(&quot;.html&quot;)]<br>files.sort(reverse=True)<br><br>links = &quot;&quot;.join(<br>    &#x27;&lt;div&gt;&lt;h2&gt;&lt;a href=&quot;posts/&#x27; + escape(x) + &#x27;&quot;&gt;&#x27; + escape(x[:-5]) + &#x27;&lt;/a&gt;&lt;/h2&gt;&lt;/div&gt;&#x27;<br>    for x in files<br>)<br><br>index = &quot;&quot;&quot;&lt;!DOCTYPE html&gt;<br>&lt;html lang=&quot;ko&quot;&gt;<br>&lt;head&gt;<br>&lt;meta charset=&quot;UTF-8&quot;&gt;<br>&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;<br>&lt;title&gt;나의 자동화 블로그&lt;/title&gt;<br>&lt;style&gt;<br>body{max-width:800px;margin:40px auto;padding:20px;font-family:Arial,sans-serif;line-height:1.8}<br>h1{border-bottom:2px solid #333;padding-bottom:10px}<br>a{text-decoration:none}<br>&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;h1&gt;나의 자동화 블로그&lt;/h1&gt;<br>&lt;p&gt;자동으로 발행되는 블로그입니다.&lt;/p&gt;<br>&quot;&quot;&quot; + links + &quot;&quot;&quot;<br>&lt;/body&gt;<br>&lt;/html&gt;&quot;&quot;&quot;<br><br>open(&quot;index.html&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;).write(index)<br><br>print(&quot;========================================&quot;)<br>print(&quot;다중 글 블로그 생성 완료!&quot;)<br>print(&quot;제목:&quot;, title)<br>print(&quot;저장 파일:&quot;, filename)<br>print(&quot;현재 글 개수:&quot;, len(files))<br>print(&quot;========================================&quot;)</div>
+<hr>
+<p>이 글은 Python을 이용한 SNS 자동화 테스트입니다.</p>
+</body>
+</html>
