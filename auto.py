@@ -1,126 +1,100 @@
 import os
 from datetime import date
 from html import escape
-
 from openai import OpenAI
 
-
-# 오늘 날짜
-today = date.today().strftime("%Y-%m-%d")
-
-# OpenAI 연결
 client = OpenAI()
 
-# 블로그 주제
-topic = input("블로그 주제를 입력하세요: ")
+print("========================================")
+print("    AI 블로그 자동 생성 시작")
+print("========================================")
+print()
 
-# AI에게 블로그 글 작성 요청
-response = client.responses.create(
+# AI가 오늘의 블로그 주제를 자동으로 선정
+topic_response = client.responses.create(
     model="gpt-5.6-luna",
-    input=f"""
-당신은 한국어 블로그 전문 작가입니다.
-
-다음 주제로 블로그 글을 작성해주세요.
-
-주제: {topic}
+    input="""
+오늘 작성할 블로그 주제를 하나 선정해주세요.
 
 조건:
-- 자연스러운 한국어로 작성
-- 제목을 먼저 작성
-- 본문은 이해하기 쉽게 작성
-- 초보자도 읽기 쉽게 작성
-- 적당한 소제목을 포함
-- 광고성 표현은 과하지 않게 작성
+- 한국 사람들이 관심을 가질 만한 주제
+- 블로그로 작성하기 좋은 주제
+- 너무 전문적이지 않은 주제
+- 여행, 맛집, 생활정보, AI, IT, 건강한 생활습관 등에서 자유롭게 선정
+- 제목만 한 줄로 출력
+- 설명은 출력하지 마세요.
 """
 )
 
-# AI가 작성한 글
+topic = topic_response.output_text.strip()
+
+print("오늘의 AI 추천 주제:")
+print(topic)
+print()
+
+# 선택된 주제로 블로그 글 생성
+response = client.responses.create(
+    model="gpt-5.6-luna",
+    input=f"""
+다음 주제로 한국어 블로그 글을 작성해주세요.
+
+주제:
+{topic}
+
+작성 조건:
+- 읽기 쉬운 한국어
+- 블로그에 바로 사용할 수 있는 자연스러운 글
+- 제목 포함
+- 소제목을 적절히 사용
+- 유용한 정보를 충분히 제공
+- 과장된 표현은 피하기
+- 마크다운 형식으로 작성
+"""
+)
+
 content = response.output_text.strip()
 
-# 첫 번째 줄을 제목으로 사용
+# 제목 가져오기
 lines = content.splitlines()
+title = topic
 
-if lines:
-    title = lines[0].replace("#", "").strip()
-else:
-    title = topic
-
-# Markdown용 블로그 글
-blog_post = f"""# {title}
-
-작성일: {today}
-
-{content}
-"""
+for line in lines:
+    clean = line.strip().lstrip("#").strip()
+    if clean:
+        title = clean
+        break
 
 # Markdown 파일 저장
 with open("blog_post.md", "w", encoding="utf-8") as f:
-    f.write(blog_post)
+    f.write(content)
 
-# HTML용 내용
-html_content = escape(content).replace("\n", "<br>\n")
-html_title = escape(title)
+# HTML 생성
+today = date.today().isoformat()
 
-html_page = f"""<!DOCTYPE html>
+html = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{html_title}</title>
-
-<style>
-body {{
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-    line-height: 1.8;
-}}
-
-h1 {{
-    border-bottom: 2px solid #333;
-    padding-bottom: 10px;
-}}
-
-.date {{
-    color: #777;
-    margin-bottom: 30px;
-}}
-
-.content {{
-    font-size: 18px;
-}}
-</style>
+<title>{escape(title)}</title>
 </head>
-
 <body>
-
-<h1>{html_title}</h1>
-
-<div class="date">
-작성일: {today}
-</div>
-
-<h2>본문</h2>
-
-<div class="content">
-{html_content}
-</div>
-
+<article>
+<h1>{escape(title)}</h1>
+<p>작성일: {today}</p>
 <hr>
-
-<p>이 글은 Python과 OpenAI를 이용한 블로그 자동화 테스트입니다.</p>
-
+<pre style="white-space: pre-wrap; font-family: sans-serif;">{escape(content)}</pre>
+</article>
 </body>
 </html>
 """
 
-# HTML 파일 저장
 with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_page)
+    f.write(html)
 
 print("========================================")
 print("블로그 글 생성 완료!")
+print("주제:", topic)
 print("제목:", title)
 print("파일명: blog_post.md")
 print("파일명: index.html")
