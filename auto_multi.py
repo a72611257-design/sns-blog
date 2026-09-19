@@ -43,9 +43,9 @@ if not title:
 
 os.makedirs("posts", exist_ok=True)
 
-
 # ==============================
 # 3. 파일명 만들기
+# 같은 날짜 + 같은 제목이면 기존 글 업데이트
 # ==============================
 
 safe = "".join(
@@ -63,16 +63,6 @@ filename = os.path.join(
     name + ".html"
 )
 
-number = 2
-
-while os.path.exists(filename):
-
-    filename = os.path.join(
-        "posts",
-        name + "-" + str(number) + ".html"
-    )
-
-    number += 1
 
 
 # ==============================
@@ -179,7 +169,6 @@ files = [
 
 files.sort(reverse=True)
 
-
 # ==============================
 # 6. 블로그 목록 만들기
 # ==============================
@@ -187,20 +176,22 @@ files.sort(reverse=True)
 links = ""
 
 for x in files:
+    filepath = os.path.join("posts", x)
 
-    # 파일명에서 .html 제거
-    post_title = x[:-5]
+    # 실제 HTML 파일에서 제목 가져오기
+    with open(filepath, "r", encoding="utf-8") as f:
+        html_text = f.read()
 
-    # YYYY-MM-DD- 제거
-    if len(post_title) > 11:
-        post_title = post_title[11:]
-
-    # -2, -3 같은 중복 번호 제거
-    post_title = re.sub(
-        r"-\d+$",
-        "",
-        post_title
+    title_match = re.search(
+        r"<title>(.*?)</title>",
+        html_text,
+        re.DOTALL
     )
+
+    if title_match:
+        post_title = title_match.group(1).strip()
+    else:
+        post_title = x[:-5]
 
     # 날짜
     post_date = x[:10]
@@ -220,8 +211,6 @@ for x in files:
 
 </div>
 """
-
-
 # ==============================
 # 7. 메인 블로그 페이지
 # ==============================
