@@ -2,11 +2,12 @@ from datetime import datetime
 import os
 
 # ==============================
-# 10강 - SNS 콘텐츠 자동 생성
+# 11강 - SNS 콘텐츠 자동 생성
 # ==============================
 
 with open("post.txt", "r", encoding="utf-8-sig") as f:
     text = f.read()
+
 lines = text.splitlines()
 
 # 제목 가져오기
@@ -37,31 +38,34 @@ os.makedirs("sns_output", exist_ok=True)
 
 
 # ==============================
-# Instagram용
+# Instagram
 # ==============================
 
 instagram = f"""📌 {title}
 
 {content}
 
+✨ 자세한 이야기는 블로그에서 확인해 보세요.
+
 #SNS #블로그 #자동화 #콘텐츠
 """
 
 
 # ==============================
-# Threads용
+# Threads
 # ==============================
 
 threads = f"""{title}
 
 {content}
 
+여러분은 어떻게 생각하시나요?
 오늘의 이야기를 공유합니다.
 """
 
 
 # ==============================
-# X용
+# X
 # ==============================
 
 x_post = f"""{title}
@@ -69,9 +73,28 @@ x_post = f"""{title}
 {content}
 """
 
-# 너무 긴 경우 우선 270자까지만 저장
 if len(x_post) > 270:
     x_post = x_post[:267] + "..."
+
+
+# ==============================
+# YouTube
+# ==============================
+
+youtube = f"""[영상 제목]
+
+{title}
+
+
+[영상 설명]
+
+{content}
+
+
+구독과 좋아요는 큰 도움이 됩니다.
+
+#유튜브 #콘텐츠 #SNS
+"""
 
 
 # ==============================
@@ -99,6 +122,17 @@ with open(
 ) as f:
     f.write(x_post)
 
+with open(
+    os.path.join("sns_output", "youtube.txt"),
+    "w",
+    encoding="utf-8"
+) as f:
+    f.write(youtube)
+
+
+# ==============================
+# 완료 메시지
+# ==============================
 
 print("========================================")
 print("SNS 콘텐츠 생성 완료!")
@@ -108,4 +142,5 @@ print("생성 파일:")
 print("sns_output\\instagram.txt")
 print("sns_output\\threads.txt")
 print("sns_output\\x.txt")
+print("sns_output\\youtube.txt")
 print("========================================")
