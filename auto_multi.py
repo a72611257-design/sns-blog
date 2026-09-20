@@ -156,6 +156,12 @@ open(
     encoding="utf-8"
 ).write(page)
 
+# 티스토리 Open API 종료에 따라 검토 후 붙여넣을 HTML 초안을 생성합니다.
+os.makedirs("tistory_output", exist_ok=True)
+tistory_html = "<h1>" + escape(title) + "</h1>\n<p>" + escape(content).replace("\n", "</p>\n<p>") + "</p>\n"
+with open(os.path.join("tistory_output", "latest.html"), "w", encoding="utf-8") as f:
+    f.write(tistory_html)
+
 
 # ==============================
 # 5. 전체 글 목록
@@ -344,4 +350,5 @@ print("8강 블로그 디자인 생성 완료!")
 print("제목:", title)
 print("저장 파일:", filename)
 print("현재 글 개수:", len(files))
+print("티스토리 초안: tistory_output\\latest.html")
 print("========================================")
