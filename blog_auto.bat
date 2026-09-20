@@ -1,60 +1,33 @@
 @echo off
+setlocal
 cd /d "%~dp0"
+call :run >> "%~dp0automation.log" 2>&1
+set "RESULT=%ERRORLEVEL%"
+type "%~dp0automation.log"
+exit /b %RESULT%
 
-echo ========================================
-echo AI 블로그 + SNS 자동화 시작
-echo ========================================
-
-echo.
-echo [1단계] AI 블로그 글 생성 중...
+:run
+echo [%date% %time%] AI 블로그 + SNS 자동화 시작
+python diagnose.py
+if errorlevel 1 exit /b 1
 python auto_to_multi.py
-
-if errorlevel 1 (
-    echo.
-    echo AI 블로그 글 생성 중 오류가 발생했습니다.
-    exit /b 1
-)
-
-echo.
-echo [2단계] 블로그 글 저장 및 목록 업데이트 중...
+if errorlevel 1 exit /b 1
 python auto_multi.py
-
-if errorlevel 1 (
-    echo.
-    echo 블로그 글 저장 중 오류가 발생했습니다.
-    exit /b 1
-)
-
-echo.
-echo [3단계] SNS 글 생성 중...
+if errorlevel 1 exit /b 1
 python sns_multi.py
-
-if errorlevel 1 (
-    echo.
-    echo SNS 글 생성 중 오류가 발생했습니다.
-    exit /b 1
-)
-
-echo.
-echo [4단계] GitHub 업데이트 중...
-
-git add index.html posts auto_to_multi.py auto_multi.py sns_multi.py blog_auto.bat .gitignore
-
+if errorlevel 1 exit /b 1
+git add index.html posts auto_to_multi.py auto_multi.py sns_multi.py blog_auto.bat diagnose.py requirements.txt .gitignore
+if errorlevel 1 exit /b 1
 git diff --cached --quiet
 if errorlevel 1 (
     git commit -m "AI 블로그 및 SNS 자동 업데이트"
+    if errorlevel 1 exit /b 1
     git push origin main
+    if errorlevel 1 exit /b 1
 ) else (
     echo 변경된 GitHub 파일이 없습니다.
 )
-
-echo.
-echo ========================================
-echo AI 블로그 + SNS 자동화 완료!
-echo ========================================
-echo.
-echo SNS 생성 파일:
-echo sns_output\instagram.txt
-echo sns_output\threads.txt
-echo sns_output\x.txt
-echo ========================================
+echo [%date% %time%] 자동화 완료
+echo 티스토리 초안: tistory_output\latest.html
+echo SNS 결과: sns_output
+exit /b 0
