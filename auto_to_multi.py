@@ -61,8 +61,11 @@ try:
     content = response.output_text.strip()
 except AuthenticationError:
     fail("OpenAI API 키가 올바르지 않습니다.")
-except RateLimitError:
-    fail("OpenAI API 사용 한도 또는 결제 한도에 걸렸습니다.")
+except RateLimitError as exc:
+    error_code = getattr(exc, "code", "")
+    if error_code == "insufficient_quota" or "quota" in str(exc).lower():
+        fail("OpenAI API 결제 잔액 또는 월 사용 한도가 부족합니다. Platform의 Billing과 Limits를 확인하세요.")
+    fail("OpenAI API 호출 속도 제한에 걸렸습니다. 잠시 후 다시 실행하세요.")
 except APIConnectionError:
     fail("OpenAI 서버에 연결하지 못했습니다. 인터넷·방화벽·VPN을 확인하세요.")
 except APIStatusError as exc:
